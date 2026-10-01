@@ -1,0 +1,93 @@
+-- ==========================================================
+-- SECURE LOADER: KEY AUTHENTICATION SYSTEM
+-- ==========================================================
+
+local CoreGui = game:GetService("CoreGui")
+local HttpService = game:GetService("HttpService")
+
+local guiParent = CoreGui
+pcall(function()
+    if gethui then guiParent = gethui() end
+end)
+
+if guiParent:FindFirstChild("KeyLoaderGUI") then
+    guiParent.KeyLoaderGUI:Destroy()
+end
+
+-- Настройки ключа и твоя ссылка на GitHub
+local CORRECT_KEY = "DRONE_SECURE_x99Q-mKp7_LNK-8851_AZURE_XYZ#777"
+local SCRIPT_URL = "https://raw.githubusercontent.com/powkxuhm-bit/Loaderj/refs/heads/main/loaderj"
+
+-- Создание интерфейса ввода ключа
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "KeyLoaderGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = guiParent
+
+local authFrame = Instance.new("Frame", screenGui)
+authFrame.Size = UDim2.new(0, 320, 0, 160)
+authFrame.Position = UDim2.new(0.5, -160, 0.4, -80)
+authFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+authFrame.BorderSizePixel = 0
+authFrame.Active = true
+authFrame.Draggable = true
+Instance.new("UICorner", authFrame).CornerRadius = UDim.new(0, 10)
+
+local authTitle = Instance.new("TextLabel", authFrame)
+authTitle.Size = UDim2.new(1, 0, 0, 35)
+authTitle.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+authTitle.Text = " 🔐 АВТОРИЗАЦИЯ ДОСТУПА"
+authTitle.TextColor3 = Color3.fromRGB(0, 220, 255)
+authTitle.TextSize, authTitle.Font = 11, Enum.Font.SourceSansBold
+authTitle.TextXAlignment = Enum.TextXAlignment.Left
+Instance.new("UICorner", authTitle).CornerRadius = UDim.new(0, 10)
+
+local keyBox = Instance.new("TextBox", authFrame)
+keyBox.Size = UDim2.new(1, -20, 0, 40)
+keyBox.Position = UDim2.new(0, 10, 0, 45)
+keyBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+keyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+keyBox.PlaceholderText = "Введите секретный ключ..."
+keyBox.Text = ""
+keyBox.TextSize, keyBox.Font = 12, Enum.Font.Code
+Instance.new("UICorner", keyBox).CornerRadius = UDim.new(0, 6)
+
+local submitBtn = Instance.new("TextButton", authFrame)
+submitBtn.Size = UDim2.new(1, -20, 0, 35)
+submitBtn.Position = UDim2.new(0, 10, 0, 95)
+submitBtn.BackgroundColor3 = Color3.fromRGB(0, 140, 200)
+submitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+submitBtn.TextSize, submitBtn.Font = 13, Enum.Font.SourceSansBold
+submitBtn.Text = "ПОДТВЕРДИТЬ КЛЮЧ"
+Instance.new("UICorner", submitBtn).CornerRadius = UDim.new(0, 6)
+
+-- Логика проверки и запуска
+submitBtn.MouseButton1Click:Connect(function()
+    local enteredKey = keyBox.Text:gsub("%s+", "")
+    local targetKey = CORRECT_KEY:gsub("%s+", "")
+    
+    if enteredKey == targetKey then
+        submitBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+        submitBtn.Text = "УСПЕШНО! ЗАГРУЗКА..."
+        task.wait(0.8)
+        
+        -- Сразу полностью удаляем окно загрузчика с экрана
+        screenGui:Destroy()
+        
+        -- Скачиваем и запускаем основной скрипт с GitHub
+        local success, err = pcall(function()
+            local code = game:HttpGet(SCRIPT_URL)
+            loadstring(code)()
+        end)
+        
+        if not success then
+            warn("[Loader Error]: Не удалось загрузить скрипт по ссылке: " .. tostring(err))
+        end
+    else
+        submitBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        submitBtn.Text = "НЕВЕРНЫЙ КЛЮЧ!"
+        task.wait(1.5)
+        submitBtn.BackgroundColor3 = Color3.fromRGB(0, 140, 200)
+        submitBtn.Text = "ПОДТВЕРДИТЬ КЛЮЧ"
+    end
+end)
